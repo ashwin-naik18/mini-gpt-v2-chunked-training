@@ -99,20 +99,3 @@ python train.py
 
 Training iterates over each data chunk, splits it into train/validation sets (90/10), and trains for a fixed number of epochs. The best model (lowest validation loss) is checkpointed to `best_model.pth`, which contains the model weights, vocabulary, and architecture config needed to reload the model later.
 
-## Roadmap / Ideas for v3
-
-- Add gradient clipping and learning rate scheduling
-- Switch to a subword tokenizer (BPE) instead of whitespace splitting
-- Add mixed-precision training for faster runs on GPU
-- Track training/validation loss curves and log to a file or dashboard
-- Add a standalone inference script for loading `best_model.pth` and generating text
-- Add unit tests for the attention and transformer block modules
-
-## License
-
-This project is open source — feel free to use, modify, and build on it. Add a license file (e.g. MIT) if you plan to share it publicly.
-
-## Acknowledgements
-
-- [SimpleStories dataset](https://huggingface.co/datasets/SimpleStories/SimpleStories)
-- Architecture inspired by Andrej Karpathy's [nanoGPT](https://github.com/karpathy/nanoGPT) and "Let's build GPT" walkthrough
