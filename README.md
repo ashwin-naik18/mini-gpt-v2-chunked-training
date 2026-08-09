@@ -4,6 +4,30 @@ A minimal, educational implementation of a GPT-style transformer language model 
 
 This project implements the core building blocks of a decoder-only transformer — multi-head self-attention, feed-forward networks, layer normalization, and residual connections — without relying on high-level transformer libraries, as a way of understanding how GPT-style models work under the hood.
 
+## What Changed from v1
+
+**v1** worked, but didn't scale. The entire tokenized dataset was encoded and loaded into memory as a single tensor (`encoded.pt`), and the whole sequence was fed into the model in one forward pass with `block_size = len(encoded)`. This meant:
+
+- Memory usage grew linearly with dataset size, making it impossible to train on anything beyond a tiny slice of data
+- There was no batching — a single giant sequence was passed through the model at once instead of many fixed-length training examples
+- The model couldn't be trained on GPU at any real scale, since both the data and the attention computation scaled with the full sequence length
+- Preprocessing and training were tightly coupled to whatever fit in RAM at once
+
+**v2** fixes this by rethinking the data pipeline for scalability:
+
+| | v1 | v2 |
+|---|---|---|
+| Data storage | Single `encoded.pt` tensor holding the entire dataset | Dataset split into fixed-size **chunks** (`chunk_0.pt`, `chunk_1.pt`, …), loaded one at a time |
+| Training examples | One full-sequence forward pass | Fixed-length windows (`block_size = 128`) sampled via a proper `Dataset`/`DataLoader`, with shuffled mini-batches |
+| Context length | `block_size` = length of entire dataset | `block_size` = 128, independent of dataset size |
+| Attention masking | Mask recomputed every forward pass | Causal mask precomputed and registered as a buffer |
+| Device support | CPU only (implicit) | Runs on GPU when available (`device = "cuda" if torch.cuda.is_available() else "cpu"`) |
+| Memory footprint | Entire dataset + full-sequence attention matrix in memory at once | Only one chunk and one batch in memory at a time; chunks are deleted and cache cleared between iterations |
+| Checkpointing | None — model was never saved | Best model (by validation loss) is checkpointed to disk during training |
+| Storage | Local files, tied to a single machine/session | Google Drive-backed storage (`setup.py`), so preprocessing and training can resume across sessions |
+
+In short, v1 was a proof-of-concept that a GPT-style model could be trained from scratch; v2 turns that into a pipeline that can actually scale to a full dataset without running out of memory.
+
 ## Features
 
 - **Custom transformer implementation** — self-attention heads, multi-head attention, feed-forward blocks, and transformer blocks written from scratch (no `nn.Transformer` or HuggingFace models)
@@ -98,4 +122,3 @@ python train.py
 ```
 
 Training iterates over each data chunk, splits it into train/validation sets (90/10), and trains for a fixed number of epochs. The best model (lowest validation loss) is checkpointed to `best_model.pth`, which contains the model weights, vocabulary, and architecture config needed to reload the model later.
-
