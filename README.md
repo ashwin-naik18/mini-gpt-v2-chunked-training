@@ -86,8 +86,8 @@ This project was built to run on **Google Colab** with data stored on Google Dri
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/llm-v2.git
-cd llm-v2
+git clone https://github.com/ashwin-naik18/llm-v2.git
+cd mini-gpt-v2-chunked-training
 ```
 
 ### 2. Install dependencies
