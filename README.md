@@ -66,7 +66,7 @@ The model is a decoder-only transformer, similar in spirit to GPT-2:
 | Parameter       | Value |
 |------------------|-------|
 | Embedding dimension | 64 |
-| Block size (context length) | 128 |
+| Block size | 128 |
 | Number of layers | 4 |
 | Number of attention heads | 4 |
 | Batch size | 64 |
@@ -86,7 +86,7 @@ This project was built to run on **Google Colab** with data stored on Google Dri
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/ashwin-naik18/llm-v2.git
+git clone https://github.com/ashwin-naik18/mini-gpt-v2-chunked-training.git
 cd mini-gpt-v2-chunked-training
 ```
 
